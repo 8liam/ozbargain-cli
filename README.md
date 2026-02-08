@@ -2,7 +2,8 @@
 
 A terminal CLI for browsing the latest deals from [Ozbargain.com.au](https://www.ozbargain.com.au).
 
-![Logo](https://user-images.githubusercontent.com/...)
+<img width="984" height="441" alt="image" src="https://github.com/user-attachments/assets/79deac2b-4346-48f6-8108-fbaa48521f4b" />
+
 
 ## Features
 
