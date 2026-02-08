@@ -1,0 +1,13 @@
+{
+  "tasks": [
+    {
+      "text": "stuff",
+      "done": true
+    }
+  ],
+  "stats": {
+    "pomsCompleted": 0,
+    "tasksCompleted": 1,
+    "focusTime": 0
+  }
+}

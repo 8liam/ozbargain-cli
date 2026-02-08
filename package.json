@@ -1,0 +1,35 @@
+{
+  "name": "ozbargain-cli",
+  "version": "1.0.1",
+  "description": "CLI browser for Ozbargain deals",
+  "type": "module",
+  "bin": {
+    "ozbargain": "./dist/bundle.js"
+  },
+  "scripts": {
+    "build": "node build.js",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/bundle.js",
+    "start:discrete": "node dist/bundle.js --discrete"
+  },
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "ozbargain",
+    "deals",
+    "cli",
+    "bargain",
+    " australia"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ink": "^4.4.1",
+    "react": "^18.2.0",
+    "rss-parser": "^3.13.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.2"
+  }
+}
