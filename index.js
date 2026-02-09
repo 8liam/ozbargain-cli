@@ -8,11 +8,13 @@ import React, { useState, useEffect } from 'react';
 import { render, Box, Text, useInput, useApp } from 'ink';
 import Parser from 'rss-parser';
 import { exec } from 'child_process';
+import Gradient from 'ink-gradient';
+import Spinner from 'ink-spinner';
 
 const parser = new Parser();
 const RSS_URL = 'https://www.ozbargain.com.au/deals/feed';
 
-// Sunset colors gradient (from oh-my-logo)
+// Sunset gradient colors
 const SUNSET_COLORS = ['#ff9966', '#ff5e62', '#ffa34e'];
 
 // Check for --discrete flag
@@ -28,33 +30,45 @@ const LOGO_ART = [
   '  ╚═════╝  ╚══════╝ ╚═════╝  ╚═╝  ╚═╝ ╚═╝  ╚═╝  ╚═════╝  ╚═╝  ╚═╝ ╚═╝ ╚═╝  ╚═══╝',
 ];
 
-// Create gradient text for a single line
-function GradientLine({ text, colors }) {
-  const chars = text.split('');
-  const colorPerChar = Math.max(1, Math.floor(chars.length / colors.length));
-
-  return React.createElement(
-    Box,
-    null,
-    chars.map((char, i) => {
-      const colorIndex = Math.min(Math.floor(i / colorPerChar), colors.length - 1);
-      return React.createElement(
-        Text,
-        { key: i, color: colors[colorIndex], bold: true },
-        char
-      );
-    })
+// Logo component with gradient
+function Logo() {
+  return (
+    <Box flexDirection="column">
+      {LOGO_ART.map((line, i) => (
+        <Gradient key={i} colors={SUNSET_COLORS}>
+          <Text bold>{line}</Text>
+        </Gradient>
+      ))}
+    </Box>
   );
 }
 
-// Logo component
-function Logo() {
-  return React.createElement(
-    Box,
-    { flexDirection: 'column' },
-    LOGO_ART.map((line, i) =>
-      React.createElement(GradientLine, { key: i, text: line, colors: SUNSET_COLORS })
-    )
+// Loading component with logo and spinner
+function LoadingScreen() {
+  return (
+    <Box flexDirection="column" paddingX={1}>
+      {!isDiscrete && <Logo />}
+      <Box marginTop={1}>
+        <Text color="#ff9966">
+          <Spinner type="dots" /> <Text dimColor>Loading deals from Ozbargain...</Text>
+        </Text>
+      </Box>
+    </Box>
+  );
+}
+
+// Error component with logo
+function ErrorScreen({ error }) {
+  return (
+    <Box flexDirection="column" paddingX={1}>
+      {!isDiscrete && <Logo />}
+      <Box marginTop={1}>
+        <Text color="red">✗ {error}</Text>
+      </Box>
+      <Box marginTop={1}>
+        <Text dimColor>Press Ctrl+C to exit</Text>
+      </Box>
+    </Box>
   );
 }
 
@@ -62,14 +76,13 @@ function Logo() {
 async function fetchDeals() {
   try {
     const feed = await parser.parseURL(RSS_URL);
-    return feed.items.map((item, index) => ({
+    return { success: true, items: feed.items.map((item, index) => ({
       id: index,
       title: item.title,
       link: item.link,
-    }));
+    }))};
   } catch (err) {
-    console.error('Failed to fetch deals:', err.message);
-    return [];
+    return { success: false, error: err.message || 'Unknown error' };
   }
 }
 
@@ -95,19 +108,25 @@ function App() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchDeals().then((items) => {
-      if (items.length === 0) {
-        setError('Failed to load deals');
-      } else {
-        setDeals(items);
-      }
+    fetchDeals().then((result) => {
       setLoading(false);
+      if (result.success) {
+        setDeals(result.items);
+      } else {
+        setError(`Failed to load deals: ${result.error}`);
+      }
     });
   }, []);
 
   useInput((input, key) => {
     if (key.ctrl && input === 'c') exit();
     if (input === 'q') exit();
+
+    // Allow quit even on error screen
+    if (error && (input === 'q' || (key.ctrl && input === 'c'))) {
+      exit();
+      return;
+    }
 
     if (loading || error || deals.length === 0) return;
 
@@ -122,20 +141,14 @@ function App() {
     }
   });
 
+  // Loading screen
   if (loading) {
-    return (
-      <Box paddingX={1}>
-        <Text dimColor>Loading deals from Ozbargain...</Text>
-      </Box>
-    );
+    return <LoadingScreen />;
   }
 
+  // Error screen
   if (error) {
-    return (
-      <Box paddingX={1}>
-        <Text color="red">{error}</Text>
-      </Box>
-    );
+    return <ErrorScreen error={error} />;
   }
 
   const visibleCount = 5;
@@ -195,4 +208,4 @@ function App() {
   );
 }
 
-render(React.createElement(App));
+render(<App />);

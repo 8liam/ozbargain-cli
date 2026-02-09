@@ -5,6 +5,8 @@ import React, { useState, useEffect } from "react";
 import { render, Box, Text, useInput, useApp } from "ink";
 import Parser from "rss-parser";
 import { exec } from "child_process";
+import Gradient from "ink-gradient";
+import Spinner from "ink-spinner";
 import { jsx, jsxs } from "react/jsx-runtime";
 var parser = new Parser();
 var RSS_URL = "https://www.ozbargain.com.au/deals/feed";
@@ -18,42 +20,39 @@ var LOGO_ART = [
   " \u255A\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D \u2588\u2588\u2551  \u2588\u2588\u2551 \u2588\u2588\u2551  \u2588\u2588\u2551 \u255A\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D \u2588\u2588\u2551  \u2588\u2588\u2551 \u2588\u2588\u2551 \u2588\u2588\u2551 \u255A\u2588\u2588\u2588\u2588\u2551",
   "  \u255A\u2550\u2550\u2550\u2550\u2550\u255D  \u255A\u2550\u2550\u2550\u2550\u2550\u2550\u255D \u255A\u2550\u2550\u2550\u2550\u2550\u255D  \u255A\u2550\u255D  \u255A\u2550\u255D \u255A\u2550\u255D  \u255A\u2550\u255D  \u255A\u2550\u2550\u2550\u2550\u2550\u255D  \u255A\u2550\u255D  \u255A\u2550\u255D \u255A\u2550\u255D \u255A\u2550\u255D  \u255A\u2550\u2550\u2550\u255D"
 ];
-function GradientLine({ text, colors }) {
-  const chars = text.split("");
-  const colorPerChar = Math.max(1, Math.floor(chars.length / colors.length));
-  return React.createElement(
-    Box,
-    null,
-    chars.map((char, i) => {
-      const colorIndex = Math.min(Math.floor(i / colorPerChar), colors.length - 1);
-      return React.createElement(
-        Text,
-        { key: i, color: colors[colorIndex], bold: true },
-        char
-      );
-    })
-  );
-}
 function Logo() {
-  return React.createElement(
-    Box,
-    { flexDirection: "column" },
-    LOGO_ART.map(
-      (line, i) => React.createElement(GradientLine, { key: i, text: line, colors: SUNSET_COLORS })
-    )
-  );
+  return /* @__PURE__ */ jsx(Box, { flexDirection: "column", children: LOGO_ART.map((line, i) => /* @__PURE__ */ jsx(Gradient, { colors: SUNSET_COLORS, children: /* @__PURE__ */ jsx(Text, { bold: true, children: line }) }, i)) });
+}
+function LoadingScreen() {
+  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, children: [
+    !isDiscrete && /* @__PURE__ */ jsx(Logo, {}),
+    /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsxs(Text, { color: "#ff9966", children: [
+      /* @__PURE__ */ jsx(Spinner, { type: "dots" }),
+      " ",
+      /* @__PURE__ */ jsx(Text, { dimColor: true, children: "Loading deals from Ozbargain..." })
+    ] }) })
+  ] });
+}
+function ErrorScreen({ error }) {
+  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, children: [
+    !isDiscrete && /* @__PURE__ */ jsx(Logo, {}),
+    /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsxs(Text, { color: "red", children: [
+      "\u2717 ",
+      error
+    ] }) }),
+    /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsx(Text, { dimColor: true, children: "Press Ctrl+C to exit" }) })
+  ] });
 }
 async function fetchDeals() {
   try {
     const feed = await parser.parseURL(RSS_URL);
-    return feed.items.map((item, index) => ({
+    return { success: true, items: feed.items.map((item, index) => ({
       id: index,
       title: item.title,
       link: item.link
-    }));
+    })) };
   } catch (err) {
-    console.error("Failed to fetch deals:", err.message);
-    return [];
+    return { success: false, error: err.message || "Unknown error" };
   }
 }
 function openBrowser(url) {
@@ -70,13 +69,13 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   useEffect(() => {
-    fetchDeals().then((items) => {
-      if (items.length === 0) {
-        setError("Failed to load deals");
-      } else {
-        setDeals(items);
-      }
+    fetchDeals().then((result) => {
       setLoading(false);
+      if (result.success) {
+        setDeals(result.items);
+      } else {
+        setError(`Failed to load deals: ${result.error}`);
+      }
     });
   }, []);
   useInput((input, key) => {
@@ -84,6 +83,10 @@ function App() {
       exit();
     if (input === "q")
       exit();
+    if (error && (input === "q" || key.ctrl && input === "c")) {
+      exit();
+      return;
+    }
     if (loading || error || deals.length === 0)
       return;
     if (key.upArrow) {
@@ -97,10 +100,10 @@ function App() {
     }
   });
   if (loading) {
-    return /* @__PURE__ */ jsx(Box, { paddingX: 1, children: /* @__PURE__ */ jsx(Text, { dimColor: true, children: "Loading deals from Ozbargain..." }) });
+    return /* @__PURE__ */ jsx(LoadingScreen, {});
   }
   if (error) {
-    return /* @__PURE__ */ jsx(Box, { paddingX: 1, children: /* @__PURE__ */ jsx(Text, { color: "red", children: error }) });
+    return /* @__PURE__ */ jsx(ErrorScreen, { error });
   }
   const visibleCount = 5;
   let windowStart = selectedIndex - 2;
@@ -138,4 +141,4 @@ function App() {
     /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsx(Text, { dimColor: true, children: "\u2191\u2193: navigate | Enter: open deal | q: quit" }) })
   ] });
 }
-render(React.createElement(App));
+render(/* @__PURE__ */ jsx(App, {}));

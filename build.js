@@ -15,7 +15,7 @@ async function build() {
     format: 'esm',
     loader: { '.js': 'jsx' },
     jsx: 'automatic',
-    external: ['ink', 'react', 'react/jsx-runtime', 'rss-parser', 'child_process'],
+    external: ['ink', 'react', 'react/jsx-runtime', 'rss-parser', 'child_process', 'ink-gradient', 'ink-spinner'],
   });
 
   let code = readFileSync('dist/bundle.js', 'utf-8');

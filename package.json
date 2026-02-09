@@ -1,6 +1,6 @@
 {
   "name": "ozbargain-cli",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI browser for Ozbargain deals",
   "type": "module",
   "bin": {
@@ -25,8 +25,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "ink": "^4.4.1",
-    "react": "^18.2.0",
+    "ink": "^6.6.0",
+    "ink-gradient": "^4.0.0",
+    "ink-spinner": "^5.0.0",
+    "react": "^19.2.4",
     "rss-parser": "^3.13.0"
   },
   "devDependencies": {
