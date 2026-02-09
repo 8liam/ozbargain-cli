@@ -24,7 +24,7 @@ function Logo() {
   return /* @__PURE__ */ jsx(Box, { flexDirection: "column", children: LOGO_ART.map((line, i) => /* @__PURE__ */ jsx(Gradient, { colors: SUNSET_COLORS, children: /* @__PURE__ */ jsx(Text, { bold: true, children: line }) }, i)) });
 }
 function LoadingScreen() {
-  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, children: [
+  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, marginTop: 1, children: [
     !isDiscrete && /* @__PURE__ */ jsx(Logo, {}),
     /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsxs(Text, { color: "#ff9966", children: [
       /* @__PURE__ */ jsx(Spinner, { type: "dots" }),
@@ -34,7 +34,7 @@ function LoadingScreen() {
   ] });
 }
 function ErrorScreen({ error }) {
-  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, children: [
+  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, marginTop: 1, children: [
     !isDiscrete && /* @__PURE__ */ jsx(Logo, {}),
     /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsxs(Text, { color: "red", children: [
       "\u2717 ",
@@ -112,7 +112,7 @@ function App() {
   if (windowStart + visibleCount > deals.length)
     windowStart = Math.max(0, deals.length - visibleCount);
   const visibleDeals = deals.slice(windowStart, windowStart + visibleCount);
-  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, children: [
+  return /* @__PURE__ */ jsxs(Box, { flexDirection: "column", paddingX: 1, marginTop: 1, children: [
     !isDiscrete && /* @__PURE__ */ jsx(Box, { marginBottom: 1, children: /* @__PURE__ */ jsx(Logo, {}) }),
     /* @__PURE__ */ jsxs(Box, { marginBottom: 1, children: [
       isDiscrete && /* @__PURE__ */ jsx(Text, { bold: true, color: "#50FA7B", children: "\u25C8 OZBARGAIN" }),
@@ -141,4 +141,5 @@ function App() {
     /* @__PURE__ */ jsx(Box, { marginTop: 1, children: /* @__PURE__ */ jsx(Text, { dimColor: true, children: "\u2191\u2193: navigate | Enter: open deal | q: quit" }) })
   ] });
 }
-render(/* @__PURE__ */ jsx(App, {}));
+console.clear();
+render(/* @__PURE__ */ jsx(App, {}), { clearOnRuntimeError: false });

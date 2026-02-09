@@ -46,7 +46,7 @@ function Logo() {
 // Loading component with logo and spinner
 function LoadingScreen() {
   return (
-    <Box flexDirection="column" paddingX={1}>
+    <Box flexDirection="column" paddingX={1} marginTop={1}>
       {!isDiscrete && <Logo />}
       <Box marginTop={1}>
         <Text color="#ff9966">
@@ -60,7 +60,7 @@ function LoadingScreen() {
 // Error component with logo
 function ErrorScreen({ error }) {
   return (
-    <Box flexDirection="column" paddingX={1}>
+    <Box flexDirection="column" paddingX={1} marginTop={1}>
       {!isDiscrete && <Logo />}
       <Box marginTop={1}>
         <Text color="red">✗ {error}</Text>
@@ -161,7 +161,7 @@ function App() {
   const visibleDeals = deals.slice(windowStart, windowStart + visibleCount);
 
   return (
-    <Box flexDirection="column" paddingX={1}>
+    <Box flexDirection="column" paddingX={1} marginTop={1}>
       {/* Logo */}
       {!isDiscrete && (
         <Box marginBottom={1}>
@@ -208,4 +208,7 @@ function App() {
   );
 }
 
-render(<App />);
+// Clear terminal on start
+console.clear();
+
+render(<App />, { clearOnRuntimeError: false });
