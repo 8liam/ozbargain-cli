@@ -1,10 +1,10 @@
 {
   "name": "ozbargain-cli",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "CLI browser for Ozbargain deals",
   "type": "module",
   "bin": {
-    "ozbargain": "./dist/bundle.js"
+    "ozbargain": "dist/bundle.js"
   },
   "scripts": {
     "build": "node build.js",
@@ -22,6 +22,10 @@
     "bargain",
     " australia"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/8liam/ozbargain-cli.git"
+  },
   "author": "",
   "license": "MIT",
   "dependencies": {
